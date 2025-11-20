@@ -15,20 +15,22 @@ FILE_PATH = "Book1.xlsx"
 SHEET_NAME = "Sheet1"  # Se sua planilha tiver outro nome, ajuste aqui.
 
 st.title("💰 Visualização de Valores por Item")
-st.markdown("Este aplicativo lê os dados da planilha e exibe um gráfico de barras.")
+st.markdown("Este aplicativo lê os dados da planilha e exibe-os em formato de tabela (Descrição e Valor).")
 
 # --- Carregamento e Tratamento dos Dados ---
 try:
+    # Verifica se o arquivo existe
     if not os.path.exists(FILE_PATH):
         st.error(
             f"Erro: O arquivo '{FILE_PATH}' não foi encontrado no diretório. Certifique-se de que o arquivo Excel (.xlsx) esteja na mesma pasta.")
         st.stop()
 
-    # CORREÇÃO PRINCIPAL: Usando pd.read_excel para carregar o arquivo .xlsx
+    # Tenta carregar o arquivo Excel
     try:
         df = pd.read_excel(FILE_PATH, sheet_name=SHEET_NAME)
     except Exception as e:
-        st.error(f"Erro ao ler o arquivo Excel. Verifique se a biblioteca 'openpyxl' está instalada. Detalhes: {e}")
+        st.error(
+            f"Erro ao ler o arquivo Excel. Verifique se a biblioteca 'openpyxl' está instalada e o nome da planilha ('{SHEET_NAME}') está correto. Detalhes: {e}")
         st.stop()
 
     # Processamento dos dados
@@ -40,7 +42,6 @@ try:
         st.write("Colunas encontradas:", df.columns.tolist())
     else:
         # Converte a coluna 'Valor' para tipo numérico
-        # O Excel lida melhor com formatos numéricos, mas este passo é uma segurança
         df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
 
         # Remove linhas onde 'Valor' é inválido
@@ -49,19 +50,15 @@ try:
         # Ordena os dados (opcional)
         df = df.sort_values(by='Valor', ascending=False)
 
-        # --- Exibição do Gráfico ---
-        st.header("📊 Gráfico de Valores por Item")
+        # --- Exibição da Tabela ---
+        # O gráfico foi removido. Exibindo a tabela conforme solicitado.
+        st.header("📋 Tabela de Descrição e Valor")
 
-        st.bar_chart(
-            data=df,
-            x='Descrição',
-            y='Valor',
-            height=500
-        )
+        # Seleciona apenas as colunas 'Descrição' e 'Valor' para exibição
+        df_display = df[['Descrição', 'Valor']]
 
-        # --- Exibição da Tabela (Opcional) ---
-        st.header("📋 Dados Processados")
-        st.dataframe(df)
+        # Exibe a tabela com as colunas necessárias e usa a largura total do container
+        st.dataframe(df_display, use_container_width=True)
 
 except Exception as e:
     st.error(f"Ocorreu um erro inesperado: {e}")
